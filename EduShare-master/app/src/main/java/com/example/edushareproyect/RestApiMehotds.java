@@ -37,6 +37,7 @@ public class RestApiMehotds {
      * Session (Controles para inicio, validacion y finalizacion de sesion)
      **/
     public static final String ApiPOSTLogin = ipaddress+"/api/session/login";
+    public static final String ApiPOSTToken = ipaddress+"/api/session/token";
 
     /*
      * Interaccion con Grupos

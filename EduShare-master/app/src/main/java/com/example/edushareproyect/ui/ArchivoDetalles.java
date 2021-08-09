@@ -246,6 +246,7 @@ public class ArchivoDetalles extends Fragment {
             if(archivo!=null){
                 fileOutputStream.close();
                 Log.d("PATH", archivo.getAbsolutePath());
+                mostrarDialogo("Éxito", "Archivo descargado y guardado en el directorio de EduShare");
             }
         }catch (FileNotFoundException fe){
             mostrarDialogo("Error",fe.getMessage());
