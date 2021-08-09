@@ -293,7 +293,12 @@ public class ArchivoDetalles extends Fragment {
     private void permisos() {
         if(ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(getActivity(), new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE }, PETICION_ACCESO);
-            permisos();
+            try {
+                Thread.sleep(1000);
+                permisos();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }else{
 
             try{
