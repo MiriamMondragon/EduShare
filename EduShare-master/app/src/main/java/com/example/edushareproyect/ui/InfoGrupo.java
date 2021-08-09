@@ -72,7 +72,6 @@ public class InfoGrupo extends Fragment {
     }
 
     public InfoGrupo(String id, String grupo, String codigo) {
-        // Required empty public constructor
         mParam1 = id;
         mParam2 = grupo;
         mParam3 = codigo;
@@ -134,17 +133,11 @@ public class InfoGrupo extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id){
                 String idIntegrante = listadoFotos.get(position).getId();
 
-                //ID DE INTEGRANTE
-                //FRAGMENT INTEGRANTE
-
-                /*Fragment Integrante = new Integrante(idIntegrante);
-
+                Fragment integrante = new AnadirContacto(idIntegrante);
                 FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                transaction.replace(R.id.nav_host_fragment_content_vista_principal, Integrante);
-
+                transaction.replace(R.id.nav_host_fragment_content_vista_principal, integrante);
                 transaction.addToBackStack(null);
                 transaction.commit();
-                */
             }
         });
         return root;

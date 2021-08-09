@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -65,13 +66,11 @@ public class HomeFragment extends Fragment {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-
-
         /*Recuperar el token de la session*/
-        //session = this.getActivity().getSharedPreferences("session",Context.MODE_PRIVATE);
-        SharedPreferences session = root.getContext().getSharedPreferences("session", Context.MODE_PRIVATE);
+        session = this.getActivity().getSharedPreferences("session",Context.MODE_PRIVATE);
+
         String token = session.getString("token","");
-        Integer perfil = session.getInt("perfil",0);
+        Integer perfil = session.getInt("perfilID",0);
 
         if(token.isEmpty()){
             Intent inicio = new Intent(this.getActivity().getApplicationContext(), MainActivity.class);
@@ -82,36 +81,23 @@ public class HomeFragment extends Fragment {
         listadoGrupos = (ListView) root.findViewById(R.id.ListviewGrupos);
         Button btnAddGrupo = (Button) root.findViewById(R.id.btnOpenAgregarGrupo);
         Log.d("PerfilID: ",perfil.toString());
+        Log.d("Token: ",token);
         /*Verificacion de perfil*/
         if(perfil==1){
             /*estudiante*/
-
         }else{
             /*Catedratico*/
             TextView titulo = root.findViewById(R.id.tituloGrupos);
             titulo.setText("Mis grupos");
             btnAddGrupo.setText("Crear Grupo Nuevo");
+            url = RestApiMehotds.ApiPOSTListaGrupos;
         }
-
-
 
         btnAddGrupo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent addGrupo = new Intent(root.getContext(), AgregarGrupo.class);
                 startActivity(addGrupo);
-
-                /*if(perfil==1){
-
-                    Intent addGrupo = new Intent(root.getContext(), AgregarGrupo.class);
-                    startActivity(addGrupo);
-
-                }else{
-
-                    Intent addGrupo = new Intent(root.getContext(), CrearGrupo.class);
-                    startActivity(addGrupo);
-                }*/
-
             }
         });
 
@@ -182,11 +168,6 @@ public class HomeFragment extends Fragment {
                 String idGrupo = arregloGrupos.get(position).getId();
                 String nombreGrupo = arregloGrupos.get(position).getNombre();
                 String codigoGrupo = arregloGrupos.get(position).getCodigo();
-                /*Intent grupoEspecifico = new Intent(root.getContext(), ArchivosGrupo.class);
-                grupoEspecifico.putExtra("idGrupo", idGrupo);
-                grupoEspecifico.putExtra("nombreGrupo", nombreGrupo);
-                grupoEspecifico.putExtra("codigoGrupo", codigoGrupo);
-                startActivity(grupoEspecifico);*/
 
                 //Abrir fragmento nuevo
                 Fragment Archivos = new ArchivosGrupo(idGrupo,nombreGrupo,codigoGrupo);

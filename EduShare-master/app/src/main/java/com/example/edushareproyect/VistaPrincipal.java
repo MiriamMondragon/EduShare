@@ -4,10 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
 
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.navigation.NavigationView;
 
 import androidx.navigation.NavController;
@@ -51,12 +51,13 @@ public class VistaPrincipal extends AppCompatActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow)
+                R.id.nav_home, R.id.listaContactos, R.id.nav_slideshow)
                 .setDrawerLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_vista_principal);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
+
     }
 
     @Override
@@ -72,6 +73,27 @@ public class VistaPrincipal extends AppCompatActivity {
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
     }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                logout();
+                return true;
+            case R.id.action_perfil:
+                Intent verPerfil = new Intent(getApplicationContext(), VerPerfil.class);
+                startActivity(verPerfil);
+                return true;
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
+        }
+
+
+    }
+
 
     //-----------------------------------------------------------------------------------------------------------------------//
     private void validarSesion(){
@@ -85,5 +107,14 @@ public class VistaPrincipal extends AppCompatActivity {
         }
     }
 
+    //-----------------------------------------------------------------------------------------------------------------------//
+
+    //-----------------------------------------------------------------------------------------------------------------------//
+    private void logout(){
+        SharedPreferences session = getSharedPreferences("session", Context.MODE_PRIVATE);
+        session.edit().clear().commit();
+        Intent main = new Intent(getApplicationContext(), MainActivity.class);
+        startActivity(main);
+    }
     //-----------------------------------------------------------------------------------------------------------------------//
 }
