@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -36,6 +37,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.edushareproyect.R;
 import com.example.edushareproyect.RestApiMehotds;
+import com.example.edushareproyect.VistaPrincipal;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -64,6 +66,8 @@ public class ArchivoDetalles extends Fragment {
     TextView txtDetFileMail;
     ImageView FileIMG;
     ImageButton btnDownload;
+    static final int PETICION_ACCESO = 100;
+    Boolean permisosConcedidos = false;
 
     String Data;
     String FileName;
@@ -72,18 +76,21 @@ public class ArchivoDetalles extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARCHIVOID = "";
+    private static final String GRUPONOMBRE = "";
     
 
     // TODO: Rename and change types of parameters
     private String mArchivoID;
+    private String mGrupoNombre;
     
 
     public ArchivoDetalles() {
         // Required empty public constructor
     }
 
-    public ArchivoDetalles(String id){
+    public ArchivoDetalles(String id, String grupoNombre){
         this.mArchivoID = id;
+        this.mGrupoNombre = grupoNombre;
     }
 
     /**
@@ -129,13 +136,7 @@ public class ArchivoDetalles extends Fragment {
         btnDownload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try{
-                    File f = CreateFile(Data,FileName,FileExtension);
-                }catch (IOException ie){
-                    mostrarDialogo("Error","No se puede descargar el archivo");
-                    ie.printStackTrace();
-                }
-
+                permisos();
             }
         });
 
@@ -237,7 +238,7 @@ public class ArchivoDetalles extends Fragment {
         CreateFolder();
         byte[] dataEncode = android.util.Base64.decode(data, Base64.DEFAULT);
 
-        File archivo =  new File("storage/emulated/0/EduShare", name);
+        File archivo =  new File("storage/emulated/0/EduShare/" + mGrupoNombre + "/", name);
         FileOutputStream fileOutputStream;
         try{
             fileOutputStream = new FileOutputStream(archivo);
@@ -258,18 +259,17 @@ public class ArchivoDetalles extends Fragment {
 
     //-----------------------------------------------------------------------------------------------------------------------//
     private void CreateFolder(){
-        File folder = new File("storage/emulated/0", "EduShare/");
+        File folder = new File("storage/emulated/0", "EduShare/"  + mGrupoNombre + "/");
         boolean success = true;
-        boolean existente = true;
         if (!folder.exists()) {
             success = folder.mkdirs();
-            existente = false;
+            if (success) {
+                mostrarDialogo("Info","Se creo una carpeta de EduShare para guardar los archivos");
+            } else {
+                mostrarDialogo("Error","No se pudo crear el directorio");
+            }
         }
-        if (success && !existente) {
-            mostrarDialogo("Info","Se creo una carpeta de EduShare para guardar los archivos");
-        } else {
-            mostrarDialogo("Error","No se pudo crear el directorio");
-        }
+
     }
     //-----------------------------------------------------------------------------------------------------------------------//
 
@@ -289,7 +289,40 @@ public class ArchivoDetalles extends Fragment {
     //-----------------------------------------------------------------------------------------------------------------------//
 
 
+    private void permisos() {
+        if(ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(getActivity(), new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE }, PETICION_ACCESO);
+            permisos();
+        }else{
 
+            try{
+                File f = CreateFile(Data,FileName,FileExtension);
+            }catch (IOException ie){
+                mostrarDialogo("Error","No se puede descargar el archivo");
+                ie.printStackTrace();
+            }
+        }
 
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PETICION_ACCESO) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                try{
+                    File f = CreateFile(Data,FileName,FileExtension);
+                }catch (IOException ie){
+                    mostrarDialogo("Error","No se puede descargar el archivo");
+                    ie.printStackTrace();
+                }
+
+            }else{
+                mostrarDialogo("Permisos a la App", "Debe conceder permisos de lectura y escritura para usar esta función");
+            }
+        }
+
+    }
 
 }
