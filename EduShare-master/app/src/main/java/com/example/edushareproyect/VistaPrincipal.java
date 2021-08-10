@@ -3,10 +3,7 @@ package com.example.edushareproyect;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.util.Base64;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,13 +14,8 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.VolleyLog;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.edushareproyect.Adaptadores.Adaptador;
-import com.example.edushareproyect.Objetos.Amigo;
-import com.example.edushareproyect.Objetos.FotografiaUsuario;
 import com.google.android.material.navigation.NavigationView;
 
 import androidx.navigation.NavController;
@@ -38,9 +30,6 @@ import com.example.edushareproyect.databinding.ActivityVistaPrincipalBinding;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 
 public class VistaPrincipal extends AppCompatActivity {
 
@@ -142,8 +131,6 @@ public class VistaPrincipal extends AppCompatActivity {
     }
     //-----------------------------------------------------------------------------------------------------------------------//
 
-    //-----------------------------------------------------------------------------------------------------------------------//
-
     public void revisarToken(String token){
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
         String url = RestApiMehotds.ApiPOSTToken;
@@ -183,5 +170,4 @@ public class VistaPrincipal extends AppCompatActivity {
 
     }
 
-    //-----------------------------------------------------------------------------------------------------------------------//
 }

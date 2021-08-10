@@ -17,6 +17,7 @@ public class RestApiMehotds {
     public static final String ApiPOSTUploadFile= ipaddress+"/api/file/upload";
     public static final String ApiPOSTListFiles= ipaddress+"/api/file/list";
     public static final String ApiPOSTFileDetail= ipaddress+"/api/file/detail";
+    public static final String ApiPOSTSendRecoveryCode = ipaddress+"/api/registro/recovery";
 
     //Alumno
     public static final String ApiPOSTAlumno = ipaddress+"/api/registro/alumno";
@@ -39,6 +40,7 @@ public class RestApiMehotds {
     public static final String ApiPOSTLogin = ipaddress+"/api/session/login";
     public static final String ApiPOSTToken = ipaddress+"/api/session/token";
 
+
     /*
      * Interaccion con Grupos
      */
@@ -46,5 +48,6 @@ public class RestApiMehotds {
     public static final String ApiPostAdmin = ipaddress + "/api/grupos/administrador";
     public static final String ApiPostMembers = ipaddress + "/api/grupos/lista/integrantes";
     public static final String ApiPostAddMiembro = ipaddress +"/api/grupo/agregar/alumno";
+    public static final String ApiPostTokenExist = ipaddress +"/api/grupo/token";
 
 }

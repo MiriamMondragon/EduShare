@@ -6,6 +6,7 @@ import android.app.DownloadManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -18,12 +19,14 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -69,6 +72,8 @@ public class ArchivoDetalles extends Fragment {
     static final int PETICION_ACCESO = 100;
     Boolean permisosConcedidos = false;
 
+    SharedPreferences session;
+
     String Data;
     String FileName;
     String FileExtension;
@@ -77,12 +82,12 @@ public class ArchivoDetalles extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARCHIVOID = "";
     private static final String GRUPONOMBRE = "";
-    
+
 
     // TODO: Rename and change types of parameters
     private String mArchivoID;
     private String mGrupoNombre;
-    
+
 
     public ArchivoDetalles() {
         // Required empty public constructor
@@ -97,7 +102,7 @@ public class ArchivoDetalles extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param archivoID Parameter 1. 
+     * @param archivoID Parameter 1.
      * @return A new instance of fragment ArchivoDetalles.
      */
     // TODO: Rename and change types and number of parameters
@@ -105,7 +110,7 @@ public class ArchivoDetalles extends Fragment {
         ArchivoDetalles fragment = new ArchivoDetalles();
         Bundle args = new Bundle();
         args.putString(ARCHIVOID, archivoID);
-        
+
         fragment.setArguments(args);
         return fragment;
     }
@@ -115,7 +120,7 @@ public class ArchivoDetalles extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             mArchivoID = getArguments().getString(ARCHIVOID);
-            
+
         }
     }
 
@@ -125,6 +130,15 @@ public class ArchivoDetalles extends Fragment {
         // Inflate the layout for this fragment
 
         View root = inflater.inflate(R.layout.fragment_archivo_detalles, container, false);
+        session = root.getContext().getSharedPreferences("session", Context.MODE_PRIVATE);
+
+        Integer PerfilID = session.getInt("perfilID",0);
+
+        if(PerfilID!=0){
+            //no encontro el perfil
+        }else if(PerfilID == 2){
+            //Puede eleminar
+        }
 
         txtDetFilename = root.findViewById(R.id.txtDetFilename);
         txtDetFileSize = root.findViewById(R.id.txtDetFileSize);
@@ -234,19 +248,26 @@ public class ArchivoDetalles extends Fragment {
     //-----------------------------------------------------------------------------------------------------------------------//
     private File CreateFile(String data, String name, String extension) throws IOException {
 
-
-        CreateFolder();
         byte[] dataEncode = android.util.Base64.decode(data, Base64.DEFAULT);
-
-        File archivo =  new File("storage/emulated/0/EduShare/" + mGrupoNombre + "/", name);
+        File archivo =  new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), name);
         FileOutputStream fileOutputStream;
         try{
+
+            if(archivo.exists()){
+                Log.e("uri:",archivo.getPath().toString());
+                //mostrarDialogo("Info", "El archivo ya existe");
+                //return null;
+                archivo.delete();
+
+            }
+
             fileOutputStream = new FileOutputStream(archivo);
             fileOutputStream.write(dataEncode);
+
+
             if(archivo!=null){
+                fileOutputStream.flush();
                 fileOutputStream.close();
-                Log.d("PATH", archivo.getAbsolutePath());
-                mostrarDialogo("Éxito", "Archivo descargado y guardado en el directorio de EduShare");
             }
         }catch (FileNotFoundException fe){
             mostrarDialogo("Error",fe.getMessage());
@@ -254,23 +275,10 @@ public class ArchivoDetalles extends Fragment {
             return null;
         }
 
+
+
+
         return archivo;
-    }
-    //-----------------------------------------------------------------------------------------------------------------------//
-
-    //-----------------------------------------------------------------------------------------------------------------------//
-    private void CreateFolder(){
-        File folder = new File("storage/emulated/0", "EduShare/"  + mGrupoNombre + "/");
-        boolean success = true;
-        if (!folder.exists()) {
-            success = folder.mkdirs();
-            if (success) {
-                mostrarDialogo("Info","Se creo una carpeta de EduShare para guardar los archivos");
-            } else {
-                mostrarDialogo("Error","No se pudo crear el directorio");
-            }
-        }
-
     }
     //-----------------------------------------------------------------------------------------------------------------------//
 
@@ -285,6 +293,22 @@ public class ArchivoDetalles extends Fragment {
                     public void onClick(DialogInterface dialogInterface, int i) {
 
                     }
+                });
+
+
+    }
+    //-----------------------------------------------------------------------------------------------------------------------//
+
+    //-----------------------------------------------------------------------------------------------------------------------//
+    private void confirmacion(String title, String mensaje, File file) {
+        new AlertDialog.Builder(getActivity())
+                .setTitle(title)
+                .setMessage(mensaje)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        openFile(file);
+                    }
                 }).show();
     }
     //-----------------------------------------------------------------------------------------------------------------------//
@@ -293,16 +317,16 @@ public class ArchivoDetalles extends Fragment {
     private void permisos() {
         if(ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(getActivity(), new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE }, PETICION_ACCESO);
-            try {
-                Thread.sleep(1000);
-                permisos();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }else{
 
             try{
                 File f = CreateFile(Data,FileName,FileExtension);
+                if(f.exists()){
+                    confirmacion("Informacion","El archivo fue guardado",f);
+                }
+                //openFile(f);
+
+
             }catch (IOException ie){
                 mostrarDialogo("Error","No se puede descargar el archivo");
                 ie.printStackTrace();
@@ -319,6 +343,10 @@ public class ArchivoDetalles extends Fragment {
 
                 try{
                     File f = CreateFile(Data,FileName,FileExtension);
+                    if(f.exists()){
+                        confirmacion("Informacion","El archivo fue guardado",f);
+                    }
+                    //openFile(f);
                 }catch (IOException ie){
                     mostrarDialogo("Error","No se puede descargar el archivo");
                     ie.printStackTrace();
@@ -329,6 +357,31 @@ public class ArchivoDetalles extends Fragment {
             }
         }
 
+
     }
+
+
+    public void openFile(File file){
+        Uri uri = Uri.fromFile(file).normalizeScheme();
+        Log.e("DIR",uri.toString());
+        String mime = get_mime_type(uri.toString());
+        Log.e("tipo",mime);
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_VIEW);
+        intent.setData(uri);
+        intent.setType(mime);
+        getActivity().startActivity(Intent.createChooser(intent, "Abrir archivo con:"));
+    }
+
+    public String get_mime_type(String url) {
+        String ext = MimeTypeMap.getFileExtensionFromUrl(url);
+        String mime = null;
+        if (ext != null) {
+            mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext);
+        }
+        return mime;
+    }
+
+
 
 }
